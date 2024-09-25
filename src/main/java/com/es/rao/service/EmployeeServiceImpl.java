@@ -24,7 +24,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 	public List<Employee> CreatreEmployee(List<Employee> employee) {
 
 		List<Employee> isvalidate = employee.stream().filter(this::isvalidateEmp).collect(Collectors.toList());
-// before  saving database we have to check emails and dept is existing in database or not.
+// before  saving database we have to check emails,rollnumber and phno is existing in database or not.
 		for (Employee isvalidDeptnameAndEmail : isvalidate) {
 			isEmailAndDepartmentUnique(isvalidDeptnameAndEmail);
 		}
