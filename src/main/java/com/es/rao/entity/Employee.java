@@ -35,6 +35,13 @@ public class Employee {
 	@Column(nullable=false, unique = true,length=90)
 	@NotNull(message="provide valid mobile number")
 	private Long phoneNumber;
+	
+	/*
+	 * @Column(nullable = false, length=50)
+	 * 
+	 * @NotNull(message="please provide your dtails, its is mandatory") private
+	 * AdressDetails adress;
+	 */
 }
 
 

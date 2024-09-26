@@ -7,11 +7,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.es.rao.entity.Employee;
+import com.es.rao.entity.EmployeeDTO;
 import com.es.rao.service.EmployeeService;
 
 import jakarta.validation.Valid;
@@ -37,5 +41,25 @@ public class EmployeeController {
 		
 	}
 	
+	@GetMapping(value="/getEmp/{empId}")
+	public ResponseEntity<Employee> getEmployee(@PathVariable Integer empId){
+	Employee emp;	
+		emp=service.getEmployee(empId);
+		return new ResponseEntity<Employee>(emp,HttpStatus.OK);
+		
+	}
+	@GetMapping(value="/getAllEmp")
+	public ResponseEntity<List<Employee>> getAllEmployee(){
+	
+		return new ResponseEntity<List<Employee>>(service.getAllEmployee(),HttpStatus.OK);
+	}
+	
+	@PutMapping(value="/upadate/{empId}")
+	public ResponseEntity<Employee> updateById(@PathVariable Integer empId, @RequestBody EmployeeDTO empDto){
+		
+		service.updateEmployee(empId,empDto);
+		return null;
+		
+	}
 	
 }
