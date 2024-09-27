@@ -16,4 +16,5 @@ public interface EmployeeService {
 	 Employee getEmployee(Integer  empId);
 	 List<Employee> getAllEmployee();
 	 Employee updateEmployee(Integer empId, EmployeeDTO empDto);
+	 List<Employee> updateAllEmployee(List<EmployeeDTO> listemp);
 }

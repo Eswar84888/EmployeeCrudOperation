@@ -1,4 +1,6 @@
 package com.es.rao.service;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -17,6 +19,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 	private EmployeeRepositories repo;
 	@Autowired
 	private ModelMapper mapper;
+
 	@Override
 	public Employee CreateEmployee(Employee emp) {
 		return repo.save(emp);
@@ -26,7 +29,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 	public List<Employee> CreatreEmployee(List<Employee> employee) {
 
 		List<Employee> isvalidate = employee.stream().filter(this::isvalidateEmp).collect(Collectors.toList());
-// before  saving database we have to check emails,rollnumber and phno is existing in database or not.
+// 		before  saving database we have to check emails,rollnumber and phno is existing in database or not.
 		for (Employee isvalidDeptnameAndEmail : isvalidate) {
 			isEmailAndDepartmentUnique(isvalidDeptnameAndEmail);
 		}
@@ -63,8 +66,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 	public Employee getEmployee(Integer empId) {
 		// TODO Auto-generated method stub
 		validateEmployeId(empId);
-		return repo.findById(empId)
-		        .orElseThrow(null);
+		return repo.findById(empId).orElseThrow(null);
 	}
 
 	private void validateEmployeId(Integer empId) {
@@ -77,28 +79,43 @@ public class EmployeeServiceImpl implements EmployeeService {
 	@Override
 	public List<Employee> getAllEmployee() {
 		return repo.findAll();
-		
+
 	}
 
 	@Override
 	public Employee updateEmployee(Integer empId, EmployeeDTO empDto) {
 		// TODO Auto-generated method stub
 		validateEmployeId(empId);
-		 // Fetch the existing employee by ID
-	Employee employeeupdate=repo.findById(empId).orElseThrow(null);
-	 // Map properties from DTO to the existing employee
-	mapper.map(empDto, employeeupdate);
-	// save the update in database
-	Employee updateEmpoyeeDetails=repo.save(employeeupdate);
+		// Fetch the existing employee by ID
+		Employee employeeupdate = repo.findById(empId).orElseThrow(null);
+		// Map properties from DTO to the existing employee
+		mapper.map(empDto, employeeupdate);
+		// save the update in database
+		Employee updateEmpoyeeDetails = repo.save(employeeupdate);
 		return updateEmpoyeeDetails;
 	}
 
-	
+	@Override
+	public List<Employee> updateAllEmployee(List<EmployeeDTO> listemp) {
+		
+		 List<Employee> listupdateAll = new ArrayList<>();
+		 for (EmployeeDTO dto : listemp) {
+		        // Fetch the employee by email
+		        Employee existingEmployee = repo.findByEmail(dto.getEmail());
 
+		        // Check if the employee exists
+		        if (existingEmployee != null) {
+		            // Use the mapper to copy properties from DTO to entity
+		            mapper.map(dto, existingEmployee);
+		            listupdateAll.add(existingEmployee);
+		        } else {
+		            // Handle the case where the employee is not found
+		            throw new IllegalArgumentException("Employee not found with email: " + dto.getEmail());
+		        }
+		    }
 
-	
-	
-	
-	
+		    // Save all updated employees in a batch
+		    return repo.saveAll(listupdateAll);
 
+}
 }

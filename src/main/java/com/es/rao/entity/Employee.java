@@ -1,9 +1,13 @@
 package com.es.rao.entity;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
@@ -21,39 +25,24 @@ public class Employee {
 	@Column(nullable = false, length = 50)
 	private String empName;
 	@Column(nullable = false, length = 50)
-	@NotNull(message="department should not be null")
+	@NotNull(message = "department should not be null")
 	private String department;
 	@Column(nullable = false, unique = true, length = 90)
-	@Email(message="complousarly providd valid email")
-	@NotNull(message  ="email shold not be null")
+	@Email(message = "complousarly providd valid email")
+	@NotNull(message = "email shold not be null")
 	private String email;
-	
-	@Column(nullable =false, length=50)
-	@NotNull(message="provide valid roll Number")
+
+	@Column(nullable = false, length = 50)
+	@NotNull(message = "provide valid roll Number")
 	private String rollNumber;
-	
-	@Column(nullable=false, unique = true,length=90)
-	@NotNull(message="provide valid mobile number")
+
+	@Column(nullable = false, unique = true, length = 90)
+	@NotNull(message = "provide valid mobile number")
 	private Long phoneNumber;
-	
-	/*
-	 * @Column(nullable = false, length=50)
-	 * 
-	 * @NotNull(message="please provide your dtails, its is mandatory") private
-	 * AdressDetails adress;
-	 */
+//	@Column(nullable = false, length = 50)
+//	@NotNull(message = "please provide your dtails, its is mandatory")
+//	@OneToOne(cascade = CascadeType.ALL)
+//	@JoinColumn(name = "address_id", referencedColumnName = "id")
+//	private AdressDetails adress;
+
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

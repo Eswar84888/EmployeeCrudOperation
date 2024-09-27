@@ -37,8 +37,7 @@ public class EmployeeController {
 	public ResponseEntity<List<Employee>> createallEmployee(@Valid @RequestBody List<Employee> employee){
 		
 		List<Employee> listemp=	service.CreatreEmployee(employee);
-		return new ResponseEntity<>(listemp, HttpStatus.OK);
-		
+		return new ResponseEntity<>(listemp, HttpStatus.OK);	
 	}
 	
 	@GetMapping(value="/getEmp/{empId}")
@@ -56,10 +55,14 @@ public class EmployeeController {
 	
 	@PutMapping(value="/upadate/{empId}")
 	public ResponseEntity<Employee> updateById(@PathVariable Integer empId, @RequestBody EmployeeDTO empDto){
-		
 		service.updateEmployee(empId,empDto);
-		return null;
-		
+		return new ResponseEntity<Employee>(service.updateEmployee(empId,empDto),HttpStatus.OK);		
 	}
 	
+	@PutMapping(value="/updateAll")
+	public ResponseEntity<List<Employee>> updateAllemp(@RequestBody List<EmployeeDTO> listemp){
+	List<Employee> updateAllEmpl=service.updateAllEmployee(listemp);
+		return new ResponseEntity<>(updateAllEmpl,HttpStatus.OK);
+		
+	}
 }
