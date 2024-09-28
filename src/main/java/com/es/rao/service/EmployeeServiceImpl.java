@@ -1,6 +1,7 @@
 package com.es.rao.service;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -12,6 +13,8 @@ import org.springframework.stereotype.Service;
 import com.es.rao.entity.Employee;
 import com.es.rao.entity.EmployeeDTO;
 import com.es.rao.repo.EmployeeRepositories;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
@@ -97,25 +100,57 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 	@Override
 	public List<Employee> updateAllEmployee(List<EmployeeDTO> listemp) {
+
+		List<Employee> listupdateAll = new ArrayList<>();
+		for (EmployeeDTO dto : listemp) {
+			// Fetch the employee by email
+			Employee existingEmployee = repo.findByEmail(dto.getEmail());
+
+			// Check if the employee exists
+			if (existingEmployee != null) {
+				// Use the mapper to copy properties from DTO to entity
+				mapper.map(dto, existingEmployee);
+				listupdateAll.add(existingEmployee);
+			} else {
+				// Handle the case where the employee is not found
+				throw new IllegalArgumentException("Employee not found with email: " + dto.getEmail());
+			}
+		}
+
+		// Save all updated employees in a batch
+		return repo.saveAll(listupdateAll);
+
+	}
+
+	@Transactional
+	@Override
+	public void deleteEmployee(Integer empId) {
+		// TODO Auto-generated method stub
+		validateEmployeId(empId);
+		repo.deleteById(empId);
+
+	}
+
+	@Transactional
+	@Override
+	public void softdeleteEmployee(Integer empId) {
+		// TODO Auto-generated method stub
+		validateEmployeId(empId);
+		Employee emp = repo.findById(empId).orElseThrow(null);
+	emp.setDeleted(true);
+	repo.save(emp);
+	}
+
+	@Override
+	public void deleteAllEmployee(List<Employee> listEmp) {
+		// TODO Auto-generated method stub
+		for(Employee listdelete:listEmp) {
+	Employee emp=	repo.findById(listdelete.getEmpId()).orElseThrow();
+	emp.setDeleted(true);
+	repo.save(emp);
+		}
 		
-		 List<Employee> listupdateAll = new ArrayList<>();
-		 for (EmployeeDTO dto : listemp) {
-		        // Fetch the employee by email
-		        Employee existingEmployee = repo.findByEmail(dto.getEmail());
+		
+	}
 
-		        // Check if the employee exists
-		        if (existingEmployee != null) {
-		            // Use the mapper to copy properties from DTO to entity
-		            mapper.map(dto, existingEmployee);
-		            listupdateAll.add(existingEmployee);
-		        } else {
-		            // Handle the case where the employee is not found
-		            throw new IllegalArgumentException("Employee not found with email: " + dto.getEmail());
-		        }
-		    }
-
-		    // Save all updated employees in a batch
-		    return repo.saveAll(listupdateAll);
-
-}
 }

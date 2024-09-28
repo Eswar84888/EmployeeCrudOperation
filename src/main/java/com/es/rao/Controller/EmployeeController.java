@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -65,4 +66,22 @@ public class EmployeeController {
 		return new ResponseEntity<>(updateAllEmpl,HttpStatus.OK);
 		
 	}
+	// hard delete
+	@DeleteMapping(value="/delete/{empId}")
+	public ResponseEntity<Employee>  delete(@PathVariable Integer empId){
+	service.deleteEmployee(empId);
+		return new ResponseEntity<Employee>(HttpStatusCode.valueOf(200));	
+	}
+	// soft delete
+	@DeleteMapping(value="/softdelete/{empId}")
+	public ResponseEntity<Employee>  softdelete(@PathVariable Integer empId){
+	service.softdeleteEmployee(empId);
+		return new ResponseEntity<Employee>(HttpStatusCode.valueOf(200));	
+	}
+	//delete batch of records
+	@DeleteMapping(value="/deleteAll")
+	public ResponseEntity<Employee>  deleteAll(@RequestBody List<Employee> listEmp){
+		service.deleteAllEmployee(listEmp);
+			return new ResponseEntity<Employee>(HttpStatus.OK);	
+		}
 }

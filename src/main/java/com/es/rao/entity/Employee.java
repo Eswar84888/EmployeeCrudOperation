@@ -1,5 +1,7 @@
 package com.es.rao.entity;
 
+import java.util.List;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -7,6 +9,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
@@ -39,10 +42,13 @@ public class Employee {
 	@Column(nullable = false, unique = true, length = 90)
 	@NotNull(message = "provide valid mobile number")
 	private Long phoneNumber;
-//	@Column(nullable = false, length = 50)
-//	@NotNull(message = "please provide your dtails, its is mandatory")
-//	@OneToOne(cascade = CascadeType.ALL)
-//	@JoinColumn(name = "address_id", referencedColumnName = "id")
-//	private AdressDetails adress;
-
+	
+	
+	
+	
+	@OneToMany(mappedBy = "employee", cascade = CascadeType.ALL)
+	private List<Address> adress;
+ 
+	  @Column(nullable = false)
+	    private boolean deleted = false;// soft delete
 }

@@ -17,4 +17,7 @@ public interface EmployeeService {
 	 List<Employee> getAllEmployee();
 	 Employee updateEmployee(Integer empId, EmployeeDTO empDto);
 	 List<Employee> updateAllEmployee(List<EmployeeDTO> listemp);
+	void deleteEmployee(Integer empId);
+	void softdeleteEmployee(Integer empId);
+	void deleteAllEmployee(List<Employee> listEmp);
 }
