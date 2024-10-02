@@ -1,8 +1,10 @@
 package com.es.rao.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -10,8 +12,11 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.es.rao.entity.Address;
+import com.es.rao.entity.AddressDto;
 import com.es.rao.entity.Employee;
 import com.es.rao.entity.EmployeeDTO;
+import com.es.rao.repo.AddressRepository;
 import com.es.rao.repo.EmployeeRepositories;
 
 import jakarta.transaction.Transactional;
@@ -23,10 +28,29 @@ public class EmployeeServiceImpl implements EmployeeService {
 	@Autowired
 	private ModelMapper mapper;
 
+	@Autowired
+	private AddressRepository addressRepo;
+
 	@Override
-	public Employee CreateEmployee(Employee emp) {
-		return repo.save(emp);
+	public Employee CreateEmployee(EmployeeDTO employeeDto) {
+
+		Employee employee = mapper.map(employeeDto, Employee.class);
+
+		// Map Addresses from DTO to Entity
+		List<Address> addresses = employeeDto.getAddressList().stream().map(addressDto -> {
+			Address address = mapper.map(addressDto, Address.class);
+			// Set back-reference
+			address.setEmployee(employee);
+
+			return address;
+		}).collect(Collectors.toList());
+
+		employee.setAddressList(addresses);
+
+		return repo.save(employee);
 	}
+
+	// Save the Employee
 
 	@Override
 	public List<Employee> CreatreEmployee(List<Employee> employee) {
@@ -87,39 +111,110 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 	@Override
 	public Employee updateEmployee(Integer empId, EmployeeDTO empDto) {
+		// Step 1: Fetch the existing employee by ID (and its addresses)
+		Employee existingEmployee = repo.findById(empId)
+				.orElseThrow(() -> new RuntimeException("Employee not found with id: " + empId));
+		updateExistingEmployee(empDto, existingEmployee);
+		// Step 3: Handle the address list
+		List<Address> existingAddresses = existingEmployee.getAddressList(); // Existing addresses from DB
+		List<AddressDto> addressDtoList = empDto.getAddressList(); // Incoming addresses from DTO
+		System.out.println(addressDtoList.size());
+		// Step 4: Update or add addresses by index
+
+		for (int i = 0; i < addressDtoList.size(); i++) {
+			AddressDto addressDto = addressDtoList.get(i);
+			if (existingAddresses.size() >= i) {
+				Address address = existingAddresses.get(i);
+				updateExistingAddresses(addressDto, address);
+
+			} else {
+				// if employee adress data is not exist then can update new data
+				addNewAddressIfNotPresent(addressDto);
+			}
+		}
+
+		// Step 6: Save the updated employee
+		return repo.save(existingEmployee);
+	}
+
+	private void updateExistingAddresses(AddressDto addressDto, Address address) {
 		// TODO Auto-generated method stub
-		validateEmployeId(empId);
-		// Fetch the existing employee by ID
-		Employee employeeupdate = repo.findById(empId).orElseThrow(null);
-		// Map properties from DTO to the existing employee
-		mapper.map(empDto, employeeupdate);
-		// save the update in database
-		Employee updateEmpoyeeDetails = repo.save(employeeupdate);
-		return updateEmpoyeeDetails;
+
+		if (addressDto.getZipCode() != null) {
+			address.setZipCode(addressDto.getZipCode());
+		}
+
+		if (addressDto.getStreet() != null) {
+			address.setStreet(addressDto.getStreet());
+		}
+		if (addressDto.getState() != null) {
+			address.setState(addressDto.getState());
+		}
+
+		if (addressDto.getCity() != null) {
+			address.setCity(addressDto.getCity());
+		}
+		if (addressDto.getAddressType() != null) {
+			address.setAddressType(addressDto.getAddressType());
+		}
+	}
+
+	private void updateExistingEmployee(EmployeeDTO empDto, Employee existingEmployee) {
+		// TODO Auto-generated method stub
+		if (empDto.getEmpName() != null) {
+			existingEmployee.setEmpName(empDto.getEmpName());
+		}
+		if (empDto.getEmail() != null) {
+			existingEmployee.setEmail(empDto.getEmail());
+		}
+		if (empDto.getPhoneNumber() != null) {
+			existingEmployee.setPhoneNumber(empDto.getPhoneNumber());
+		}
+
+		if (empDto.getDepartment() != null) {
+			existingEmployee.setDepartment(empDto.getDepartment());
+		}
 	}
 
 	@Override
 	public List<Employee> updateAllEmployee(List<EmployeeDTO> listemp) {
-
 		List<Employee> listupdateAll = new ArrayList<>();
-		for (EmployeeDTO dto : listemp) {
-			// Fetch the employee by email
-			Employee existingEmployee = repo.findByEmail(dto.getEmail());
+		for (EmployeeDTO empDto : listemp) {
+			Employee existingEmployee = repo.findByEmail(empDto.getEmail());
+			updateExistingEmployee(empDto, existingEmployee);
+			// Step 3: Handle the address list
+			List<Address> existingAddresses = existingEmployee.getAddressList(); // Existing addresses from DB
+			List<AddressDto> addressDtoList = empDto.getAddressList(); // Incoming addresses from DTO
+			int i;
+			// Step 4: Update or add addresses by index
+			for (i = 0; i < addressDtoList.size(); i++) {
+				AddressDto addressDto = addressDtoList.get(i);
+				if (existingAddresses.size() > i) {
+					Address address = existingAddresses.get(i);
+					updateExistingAddresses(addressDto, address);
+				}
 
-			// Check if the employee exists
-			if (existingEmployee != null) {
-				// Use the mapper to copy properties from DTO to entity
-				mapper.map(dto, existingEmployee);
-				listupdateAll.add(existingEmployee);
-			} else {
-				// Handle the case where the employee is not found
-				throw new IllegalArgumentException("Employee not found with email: " + dto.getEmail());
+				else {
+					// if employee adress data is not exist then can update new data
+					addNewAddressIfNotPresent(addressDto);
+				}
 			}
+			// Add employee to the list of employees to be updated
+			listupdateAll.add(existingEmployee);
 		}
 
 		// Save all updated employees in a batch
 		return repo.saveAll(listupdateAll);
+	}
 
+	private void addNewAddressIfNotPresent(AddressDto addressDto) {
+		// TODO Auto-generated method stub
+		Address addressnew = new Address();
+		addressnew.setZipCode(addressDto.getZipCode());
+		addressnew.setStreet(addressDto.getStreet());
+		addressnew.setState(addressDto.getState());
+		addressnew.setAddressType(addressDto.getAddressType());
+		addressnew.setCity(addressDto.getCity());
 	}
 
 	@Transactional
@@ -137,20 +232,19 @@ public class EmployeeServiceImpl implements EmployeeService {
 		// TODO Auto-generated method stub
 		validateEmployeId(empId);
 		Employee emp = repo.findById(empId).orElseThrow(null);
-	emp.setDeleted(true);
-	repo.save(emp);
+		emp.setDeleted(true);
+		repo.save(emp);
 	}
 
 	@Override
 	public void deleteAllEmployee(List<Employee> listEmp) {
 		// TODO Auto-generated method stub
-		for(Employee listdelete:listEmp) {
-	Employee emp=	repo.findById(listdelete.getEmpId()).orElseThrow();
-	emp.setDeleted(true);
-	repo.save(emp);
+		for (Employee listdelete : listEmp) {
+			Employee emp = repo.findById(listdelete.getEmpId()).orElseThrow();
+			emp.setDeleted(true);
+			repo.save(emp);
 		}
-		
-		
+
 	}
 
 }

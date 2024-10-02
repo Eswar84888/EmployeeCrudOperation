@@ -10,9 +10,15 @@ import lombok.Data;
 public class EmployeeDTO {
 
 	
-	private String empName;
-	private String department;
-	private String email;
-	private Long phoneNumber;
-	 private List<AdressDetailsDto> addresses; // List of addresses
+	/*
+	 * private String empName; private String department; private String email;
+	 * private Long phoneNumber; private String rollNumber; private List<AddressDto>
+	 * addressList; // List of addresses
+	 */
+	 private String empName;
+	    private String department;
+	    private String email;
+	    private Long phoneNumber;
+	    private String rollNumber;
+	    private List<AddressDto> addressList; 	
 }

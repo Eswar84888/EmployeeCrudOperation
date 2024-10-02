@@ -28,7 +28,7 @@ public class EmployeeController {
 	private EmployeeService service;
 
 	@PostMapping(value="/createEmp")
-	public ResponseEntity<Employee> createEmployee(@RequestBody Employee employee){
+	public ResponseEntity<Employee> createEmployee(@RequestBody EmployeeDTO employee){
 		
 		Employee emp=service.CreateEmployee(employee);
 		return new ResponseEntity<>(emp,HttpStatus.OK);
@@ -56,7 +56,7 @@ public class EmployeeController {
 	
 	@PutMapping(value="/upadate/{empId}")
 	public ResponseEntity<Employee> updateById(@PathVariable Integer empId, @RequestBody EmployeeDTO empDto){
-		service.updateEmployee(empId,empDto);
+	
 		return new ResponseEntity<Employee>(service.updateEmployee(empId,empDto),HttpStatus.OK);		
 	}
 	

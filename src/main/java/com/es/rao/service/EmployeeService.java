@@ -11,7 +11,7 @@ import com.es.rao.entity.EmployeeDTO;
 public interface EmployeeService {
 
 	
-	 Employee CreateEmployee(Employee emp);
+	 Employee CreateEmployee(EmployeeDTO employee);
 	 List<Employee> CreatreEmployee(List<Employee> employee);
 	 Employee getEmployee(Integer  empId);
 	 List<Employee> getAllEmployee();

@@ -1,10 +1,12 @@
 package com.es.rao.entity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -21,34 +23,34 @@ import lombok.Data;
 @Data
 public class Employee {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer empId;
-	@NotNull(message = "name should not be null")
-	@Column(nullable = false, length = 50)
-	private String empName;
-	@Column(nullable = false, length = 50)
-	@NotNull(message = "department should not be null")
-	private String department;
-	@Column(nullable = false, unique = true, length = 90)
-	@Email(message = "complousarly providd valid email")
-	@NotNull(message = "email shold not be null")
-	private String email;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer empId;
 
-	@Column(nullable = false, length = 50)
-	@NotNull(message = "provide valid roll Number")
-	private String rollNumber;
+    @NotNull(message = "name should not be null")
+    @Column(nullable = false, length = 50)
+    private String empName;
 
-	@Column(nullable = false, unique = true, length = 90)
-	@NotNull(message = "provide valid mobile number")
-	private Long phoneNumber;
-	
-	
-	
-	
-	@OneToMany(mappedBy = "employee", cascade = CascadeType.ALL)
-	private List<Address> adress;
- 
-	  @Column(nullable = false)
-	    private boolean deleted = false;// soft delete
+    @NotNull(message = "department should not be null")
+    @Column(nullable = false, length = 50)
+    private String department;
+
+    @Email(message = "provide valid email")
+    @NotNull(message = "email should not be null")
+    @Column(nullable = false, unique = true, length = 90)
+    private String email;
+
+    @NotNull(message = "provide valid roll Number")
+    @Column(nullable = false, length = 50)
+    private String rollNumber;
+
+    @NotNull(message = "provide valid mobile number")
+    @Column(nullable = false, unique = true, length = 90)
+    private Long phoneNumber;
+
+    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<Address> addressList = new ArrayList<>(); // Renamed for clarity
+
+    @Column(nullable = false)
+    private boolean deleted = false; // For soft delete
 }
